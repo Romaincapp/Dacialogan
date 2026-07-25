@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dacia Logan MCV 1.5 dCi — Pour pièces / export — 500€</title>
+<style>
+  :root{
+    --bg:#14161a;
+    --panel:#1d2026;
+    --panel-2:#22262e;
+    --border:#31353d;
+    --text:#eceef1;
+    --muted:#9aa1ac;
+    --accent:#d98c2b;
+    --accent-2:#4a7c59;
+    --danger:#c0503f;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.5;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:0 18px 60px;}
+
+  header.hero{
+    background:linear-gradient(180deg,#1a1d22,#14161a);
+    border-bottom:1px solid var(--border);
+    padding:36px 18px 28px;
+    text-align:center;
+  }
+  header.hero .tag{
+    display:inline-block;
+    background:var(--danger);
+    color:#fff;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    padding:5px 14px;
+    border-radius:20px;
+    margin-bottom:14px;
+  }
+  header.hero h1{
+    font-size:28px;
+    margin:0 0 6px;
+    font-weight:700;
+  }
+  header.hero p.sub{
+    color:var(--muted);
+    margin:0;
+    font-size:15px;
+  }
+  .price-block{
+    max-width:900px;
+    margin:-22px auto 0;
+    padding:0 18px;
+  }
+  .price-card{
+    background:var(--accent);
+    color:#1a1200;
+    border-radius:14px;
+    padding:18px 24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .price-card .amount{
+    font-size:34px;
+    font-weight:800;
+    line-height:1;
+  }
+  .price-card .amount small{font-size:16px;font-weight:600;}
+  .price-card .note{font-size:13px;font-weight:600;opacity:.85;max-width:340px;}
+
+  section{margin-top:34px;}
+  h2{
+    font-size:16px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--muted);
+    margin:0 0 14px;
+    padding-bottom:8px;
+    border-bottom:1px solid var(--border);
+  }
+
+  .grid-info{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:12px;
+  }
+  .info-card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px 16px;
+  }
+  .info-card .label{
+    font-size:12px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    margin-bottom:4px;
+  }
+  .info-card .value{
+    font-size:16px;
+    font-weight:600;
+  }
+
+  .issues{
+    background:var(--panel);
+    border:1px solid var(--danger);
+    border-left:4px solid var(--danger);
+    border-radius:10px;
+    padding:18px 20px;
+  }
+  .issues ul{margin:0;padding-left:20px;}
+  .issues li{margin-bottom:8px;}
+  .issues li:last-child{margin-bottom:0;}
+
+  .ok-box{
+    background:var(--panel);
+    border:1px solid var(--accent-2);
+    border-left:4px solid var(--accent-2);
+    border-radius:10px;
+    padding:18px 20px;
+    margin-top:14px;
+  }
+  .ok-box ul{margin:0;padding-left:20px;}
+  .ok-box li{margin-bottom:8px;}
+  .ok-box li:last-child{margin-bottom:0;}
+
+  .gallery{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+  }
+  .gallery figure{
+    margin:0;
+    border-radius:8px;
+    overflow:hidden;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    cursor:zoom-in;
+  }
+  .gallery img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    aspect-ratio:4/3;
+    display:block;
+    transition:transform .2s ease;
+  }
+  .gallery figure:hover img{transform:scale(1.04);}
+  .gallery figcaption{
+    font-size:11.5px;
+    color:var(--muted);
+    padding:6px 8px;
+  }
+
+  @media(max-width:560px){
+    .gallery{grid-template-columns:repeat(2,1fr);}
+    header.hero h1{font-size:22px;}
+    .price-card .amount{font-size:28px;}
+  }
+
+  .lightbox{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.9);
+    z-index:100;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  .lightbox.open{display:flex;}
+  .lightbox img{max-width:100%;max-height:100%;border-radius:6px;}
+  .lightbox .close{
+    position:absolute;
+    top:18px;right:22px;
+    color:#fff;
+    font-size:30px;
+    cursor:pointer;
+    line-height:1;
+  }
+
+  footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:13px;
+    margin-top:44px;
+    padding-top:18px;
+    border-top:1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="tag">Vente pour pièces / export</span>
+  <h1>Dacia Logan MCV 1.5 dCi</h1>
+  <p class="sub">Break familial 5 portes — moteur et turbo HS — carrosserie accidentée à l'arrière droit</p>
+</header>
+
+<div class="price-block">
+  <div class="price-card">
+    <div class="amount">500 € <small>négociable</small></div>
+    <div class="note">Vendue en l'état, non roulante sur route, idéale marchand / pièces / export.</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section>
+    <h2>Caractéristiques</h2>
+    <div class="grid-info">
+      <div class="info-card">
+        <div class="label">Modèle</div>
+        <div class="value">Dacia Logan MCV 1.5 dCi</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Kilométrage</div>
+        <div class="value">≈ 200 954 km</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Boîte</div>
+        <div class="value">Manuelle 5 rapports</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Carburant</div>
+        <div class="value">Diesel</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Contrôle technique</div>
+        <div class="value">Pas de CT</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Carnet / Carpass</div>
+        <div class="value">Carnet d'entretien OK, Carpass OK</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Points d'attention</h2>
+    <div class="issues">
+      <ul>
+        <li><strong>Moteur HS</strong> — le moteur démarre mais consomme l'huile de façon anormale.</li>
+        <li><strong>Turbo HS.</strong></li>
+        <li><strong>Châssis ouvert à l'arrière droit</strong> suite à un choc (voir photos détaillées).</li>
+        <li>Vendue <strong>sans contrôle technique</strong> — transport / immatriculation à prévoir par l'acheteur.</li>
+      </ul>
+    </div>
+    <div class="ok-box">
+      <ul>
+        <li>Le moteur démarre toujours (voir vidéo/démonstration possible sur place).</li>
+        <li>Carnet d'entretien complet disponible.</li>
+        <li>Historique Carpass vérifiable, sans anomalie.</li>
+        <li>Habitacle propre, sellerie en bon état, intérieur complet.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Photos</h2>
+    <div class="gallery" id="gallery">
+      <figure onclick="openLightbox('photos/photo01.jpg')">
+        <img src="photos/photo01.jpg" alt="Vue avant 3/4">
+        <figcaption>Vue avant 3/4</figcaption>
+      </figure>
+      <figure onclick="openLightbox('photos/photo02.jpg')">
+        <img src="photos/photo02.jpg" alt="Vue latérale">
+        <figcaption>Vue latérale</figcaption>
+      </figure>
+      <figure onclick="openLightbox('photos/photo14.jpg')">
+        <img src="photos/photo14.jpg" alt="Vue arrière">
+        <figcaption>Vue arrière</figcaption>
+      </figure>
+      <figure onclick="openLightbox('photos/photo16.jpg')">
+        <img src="photos/photo16.jpg" alt="Profil complet">
+        <figcaption>Profil complet</figcaption>
+      </figure>
+      <figure onclick="openLightbox('photos/photo08.jpg')">
+        <img src="photos/photo08.jpg" alt="Dégât châssis arrière droit">
+        <figcaption>⚠ Dégât arrière droit</figcaption>
+      </figure>
+      <figure onclick="openLightbox('photos/photo10.jpg')">
+        <img src="photos/photo10.jpg" alt="Dégât châssis arrière droit - détail">
+        <figcaption>⚠ Dégât arrière droit — détail</figcaption>
+      </figure>
+      <figure onclick="openLightbox('photos/photo12.jpg')">
+        <img src="photos/photo12.jpg" alt="Dégât châssis arrière droit - large">
+        <figcaption>⚠ Dégât arrière droit — vue large</figcaption>
+      </figure>
+      <figure onclick="openLightbox('photos/photo09.jpg')">
+        <img src="photos/photo09.jpg" alt="Châssis dessous">
+        <figcaption>Châssis / dessous</figcaption>
+      </figure>
+      <figure onclick="openLightbox('photos/photo07.jpg')">
+        <img src="photos/photo07.jpg" alt="Compteur kilométrique">
+        <figcaption>Compteur — 200 954 km</figcaption>
+      </figure>
+      <figure onclick="openLightbox('photos/photo15.jpg')">
+        <img src="photos/photo15.jpg" alt="Moteur 1.5 dCi">
+        <figcaption>Compartiment moteur</figcaption>
+      </figure>
+      <figure onclick="openLightbox('photos/photo04.jpg')">
+        <img src="photos/photo04.jpg" alt="Intérieur avant">
+        <figcaption>Intérieur avant</figcaption>
+      </figure>
+      <figure onclick="openLightbox('photos/photo05.jpg')">
+        <img src="photos/photo05.jpg" alt="Sièges arrière">
+        <figcaption>Sièges arrière</figcaption>
+      </figure>
+      <figure onclick="openLightbox('photos/photo06.jpg')">
+        <img src="photos/photo06.jpg" alt="Coffre">
+        <figcaption>Coffre</figcaption>
+      </figure>
+      <figure onclick="openLightbox('photos/photo03.jpg')">
+        <img src="photos/photo03.jpg" alt="Tableau de bord central">
+        <figcaption>Tableau de bord central</figcaption>
+      </figure>
+      <figure onclick="openLightbox('photos/photo11.jpg')">
+        <img src="photos/photo11.jpg" alt="Vue conducteur">
+        <figcaption>Vue conducteur</figcaption>
+      </figure>
+      <figure onclick="openLightbox('photos/photo17.jpg')">
+        <img src="photos/photo17.jpg" alt="Console centrale">
+        <figcaption>Console centrale</figcaption>
+      </figure>
+      <figure onclick="openLightbox('photos/photo18.jpg')">
+        <img src="photos/photo18.jpg" alt="Console centrale - vue basse">
+        <figcaption>Console centrale — vue basse</figcaption>
+      </figure>
+      <figure onclick="openLightbox('photos/photo13.jpg')">
+        <img src="photos/photo13.jpg" alt="Feu arrière droit">
+        <figcaption>Feu arrière droit</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <footer>
+    Annonce à usage privé — véhicule visible sur rendez-vous.
+  </footer>
+
+</div>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="close" onclick="closeLightbox()">&times;</span>
+  <img id="lightbox-img" src="" alt="Photo agrandie">
+</div>
+
+<script>
+function openLightbox(src){
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+}
+</script>
+
+</body>
+</html>
