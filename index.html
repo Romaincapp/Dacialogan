@@ -176,12 +176,28 @@
     inset:0;
     background:rgba(0,0,0,.9);
     z-index:100;
+  }
+  .lightbox.open{display:block;}
+  .lb-stage{
+    position:absolute;
+    inset:0;
+    display:flex;
     align-items:center;
     justify-content:center;
+    overflow:hidden;
     padding:20px;
   }
-  .lightbox.open{display:flex;}
-  .lightbox img{max-width:100%;max-height:100%;border-radius:6px;}
+  .lightbox img{
+    max-width:100%;
+    max-height:100%;
+    border-radius:6px;
+    transform-origin:center center;
+    touch-action:none;
+    user-select:none;
+    -webkit-user-drag:none;
+    will-change:transform;
+    cursor:zoom-in;
+  }
   .lightbox .close{
     position:absolute;
     top:18px;right:22px;
@@ -189,6 +205,55 @@
     font-size:30px;
     cursor:pointer;
     line-height:1;
+    z-index:120;
+  }
+  .lb-nav{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    background:rgba(0,0,0,.45);
+    border:1px solid rgba(255,255,255,.25);
+    color:#fff;
+    width:48px;height:48px;
+    border-radius:50%;
+    font-size:22px;
+    line-height:1;
+    cursor:pointer;
+    z-index:110;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .lb-nav:hover{background:rgba(0,0,0,.75);}
+  .lb-prev{left:16px;}
+  .lb-next{right:16px;}
+  .lb-counter{
+    position:absolute;
+    bottom:16px;
+    left:50%;
+    transform:translateX(-50%);
+    color:#fff;
+    font-size:13px;
+    background:rgba(0,0,0,.5);
+    padding:5px 14px;
+    border-radius:20px;
+    z-index:110;
+    pointer-events:none;
+  }
+  .lb-hint{
+    position:absolute;
+    top:18px;
+    left:50%;
+    transform:translateX(-50%);
+    color:var(--muted);
+    font-size:12px;
+    z-index:110;
+    pointer-events:none;
+    white-space:nowrap;
+  }
+  @media(max-width:560px){
+    .lb-nav{width:40px;height:40px;font-size:18px;}
+    .lb-hint{display:none;}
   }
 
   footer{
@@ -352,19 +417,196 @@
 
 </div>
 
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-  <span class="close" onclick="closeLightbox()">&times;</span>
-  <img id="lightbox-img" src="" alt="Photo agrandie">
+<div class="lightbox" id="lightbox">
+  <span class="close" id="lb-close" aria-label="Fermer">&times;</span>
+  <div class="lb-hint">Molette / double-clic pour zoomer — flèches pour naviguer</div>
+  <button class="lb-nav lb-prev" id="lb-prev" aria-label="Photo précédente">&#10094;</button>
+  <button class="lb-nav lb-next" id="lb-next" aria-label="Photo suivante">&#10095;</button>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lightbox-img" src="" alt="Photo agrandie" draggable="false">
+  </div>
+  <div class="lb-counter" id="lb-counter"></div>
 </div>
 
 <script>
-function openLightbox(src){
-  document.getElementById('lightbox-img').src = src;
-  document.getElementById('lightbox').classList.add('open');
-}
-function closeLightbox(){
-  document.getElementById('lightbox').classList.remove('open');
-}
+(function(){
+  var lightbox = document.getElementById('lightbox');
+  var img      = document.getElementById('lightbox-img');
+  var stage    = document.getElementById('lb-stage');
+  var counter  = document.getElementById('lb-counter');
+
+  var srcs = [];       // liste des photos, dans l'ordre de la galerie
+  var current = 0;
+  var scale = 1, tx = 0, ty = 0;
+  var MIN = 1, MAX = 4;
+
+  function buildList(){
+    srcs = [];
+    document.querySelectorAll('#gallery figure img').forEach(function(el){
+      srcs.push(el.getAttribute('src'));
+    });
+  }
+
+  function apply(){
+    img.style.transform = 'translate('+tx+'px,'+ty+'px) scale('+scale+')';
+    img.style.cursor = scale > 1 ? 'grab' : 'zoom-in';
+  }
+  function reset(){ scale = 1; tx = 0; ty = 0; apply(); }
+
+  // Empêche la photo de sortir du cadre quand elle est zoomée
+  function clampPan(){
+    var r = stage.getBoundingClientRect();
+    var maxX = Math.max(0, (img.clientWidth  * scale - r.width)  / 2);
+    var maxY = Math.max(0, (img.clientHeight * scale - r.height) / 2);
+    tx = Math.max(-maxX, Math.min(maxX, tx));
+    ty = Math.max(-maxY, Math.min(maxY, ty));
+  }
+
+  // Zoom centré sur un point écran (molette, double-clic, pincement)
+  function zoomTo(clientX, clientY, s2){
+    s2 = Math.max(MIN, Math.min(MAX, s2));
+    var r = stage.getBoundingClientRect();
+    var fx = clientX - (r.left + r.width  / 2);
+    var fy = clientY - (r.top  + r.height / 2);
+    var wx = (fx - tx) / scale;
+    var wy = (fy - ty) / scale;
+    scale = s2;
+    tx = fx - wx * scale;
+    ty = fy - wy * scale;
+    if(scale === 1){ tx = 0; ty = 0; }
+    clampPan();
+    apply();
+  }
+
+  function show(i){
+    if(i < 0) i = srcs.length - 1;
+    if(i >= srcs.length) i = 0;
+    current = i;
+    img.src = srcs[current];
+    reset();
+    counter.textContent = (current + 1) + ' / ' + srcs.length;
+  }
+  function next(){ show(current + 1); }
+  function prev(){ show(current - 1); }
+
+  window.openLightbox = function(src){
+    if(!srcs.length) buildList();
+    var idx = srcs.indexOf(src);
+    show(idx === -1 ? 0 : idx);
+    lightbox.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+  window.closeLightbox = function(){
+    lightbox.classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  // --- Boutons / clavier ---
+  document.getElementById('lb-close').addEventListener('click', closeLightbox);
+  document.getElementById('lb-prev').addEventListener('click', function(e){ e.stopPropagation(); prev(); });
+  document.getElementById('lb-next').addEventListener('click', function(e){ e.stopPropagation(); next(); });
+  lightbox.addEventListener('click', function(e){ if(e.target === lightbox || e.target === stage) closeLightbox(); });
+  document.addEventListener('keydown', function(e){
+    if(!lightbox.classList.contains('open')) return;
+    if(e.key === 'Escape') closeLightbox();
+    else if(e.key === 'ArrowRight') next();
+    else if(e.key === 'ArrowLeft') prev();
+    else if(e.key === '+' || e.key === '=') { var r = stage.getBoundingClientRect(); zoomTo(r.left+r.width/2, r.top+r.height/2, scale+0.5); }
+    else if(e.key === '-') { var r2 = stage.getBoundingClientRect(); zoomTo(r2.left+r2.width/2, r2.top+r2.height/2, scale-0.5); }
+  });
+
+  // --- Molette (desktop) ---
+  stage.addEventListener('wheel', function(e){
+    e.preventDefault();
+    zoomTo(e.clientX, e.clientY, scale + (e.deltaY < 0 ? 0.35 : -0.35));
+  }, {passive:false});
+
+  // --- Double-clic (desktop) : bascule zoom ---
+  stage.addEventListener('dblclick', function(e){
+    e.preventDefault();
+    if(scale > 1) reset(); else zoomTo(e.clientX, e.clientY, 2.5);
+  });
+
+  // --- Souris : glisser pour déplacer quand zoomé ---
+  var mDown = false, mStartX = 0, mStartY = 0, mTx = 0, mTy = 0;
+  stage.addEventListener('mousedown', function(e){
+    if(scale <= 1) return;
+    mDown = true; mStartX = e.clientX; mStartY = e.clientY; mTx = tx; mTy = ty;
+    img.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', function(e){
+    if(!mDown) return;
+    tx = mTx + (e.clientX - mStartX);
+    ty = mTy + (e.clientY - mStartY);
+    clampPan(); apply();
+  });
+  window.addEventListener('mouseup', function(){ if(mDown){ mDown = false; apply(); } });
+
+  // --- Tactile : swipe (navigation), 1 doigt = déplacement si zoomé, 2 doigts = pincement ---
+  var t = { x:0, y:0, tx:0, ty:0, moved:false, dist:0, scale:1, midX:0, midY:0, lastTap:0 };
+
+  function dist(a, b){ var dx = a.clientX-b.clientX, dy = a.clientY-b.clientY; return Math.hypot(dx, dy); }
+  function mid(a, b){ return { x:(a.clientX+b.clientX)/2, y:(a.clientY+b.clientY)/2 }; }
+
+  stage.addEventListener('touchstart', function(e){
+    if(e.touches.length === 1){
+      t.x = e.touches[0].clientX; t.y = e.touches[0].clientY;
+      t.tx = tx; t.ty = ty; t.moved = false;
+    } else if(e.touches.length === 2){
+      t.dist = dist(e.touches[0], e.touches[1]);
+      t.scale = scale;
+      var m = mid(e.touches[0], e.touches[1]);
+      t.midX = m.x; t.midY = m.y; t.moved = true;
+    }
+  }, {passive:false});
+
+  stage.addEventListener('touchmove', function(e){
+    if(e.touches.length === 2){
+      e.preventDefault();
+      var d = dist(e.touches[0], e.touches[1]);
+      var m = mid(e.touches[0], e.touches[1]);
+      zoomTo(m.x, m.y, t.scale * (d / t.dist));
+      t.moved = true;
+    } else if(e.touches.length === 1){
+      var dx = e.touches[0].clientX - t.x;
+      var dy = e.touches[0].clientY - t.y;
+      if(scale > 1){
+        e.preventDefault();
+        tx = t.tx + dx; ty = t.ty + dy;
+        clampPan(); apply();
+        t.moved = true;
+      } else if(Math.abs(dx) > 8 || Math.abs(dy) > 8){
+        t.moved = true; // simple swipe, traité au relâchement
+      }
+    }
+  }, {passive:false});
+
+  stage.addEventListener('touchend', function(e){
+    if(e.touches.length > 0) return;
+    // swipe horizontal quand pas zoomé -> photo précédente / suivante
+    if(scale === 1){
+      var dx = t.x - (e.changedTouches[0] ? e.changedTouches[0].clientX : t.x);
+      if(dx > 50) next();
+      else if(dx < -50) prev();
+      else {
+        // double-tap -> zoom
+        var now = Date.now();
+        if(!t.moved && now - t.lastTap < 300){
+          zoomTo(e.changedTouches[0].clientX, e.changedTouches[0].clientY, 2.5);
+          t.lastTap = 0;
+        } else {
+          t.lastTap = now;
+        }
+      }
+    } else if(!t.moved){
+      // double-tap pour dézoomer
+      var n2 = Date.now();
+      if(n2 - t.lastTap < 300){ reset(); t.lastTap = 0; }
+      else t.lastTap = n2;
+    }
+  });
+})();
 </script>
 
 </body>
